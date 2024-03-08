@@ -1,0 +1,36 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'F.Intrinsic.Debug.InvokeDebugger
+F.Intrinsic.Debug.Stop
+F.Intrinsic.Control.If(V.Caller.Switches,<>,"N")
+	F.Intrinsic.Control.End
+F.Intrinsic.Control.EndIf
+
+V.Local.sQuery.Declare(String)
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+	
+F.Intrinsic.String.Concat("SELECT APPROVED_SUPPL FROM V_VENDOR_ADDL WHERE VENDOR='",V.Passed.000011,"'",V.Local.sQuery)
+F.ODBC.Connection!conx.OpenRecordsetRO("rstVend",V.Local.sQuery)
+F.Intrinsic.Control.If(V.ODBC.conx!rstVend.EOF,<>,True)
+	F.Intrinsic.Control.If(V.ODBC.conx!rstVend.FieldValTrim!APPROVED_SUPPL,<>,"Y")
+		F.Intrinsic.UI.Msgbox("P.O. may not be created because the vendor has not been approved")
+		V.Passed.777777.Set("1")
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.EndIf
+F.ODBC.conx!rstVend.Close
+F.ODBC.Connection!conx.Close
+
+Program.Sub.Main.End
+
+Program.Sub.Comments.Start
+${$0$}$ATG_3713_Vendor_Check$}$JCT$}$4/6/2016
+${$1$}$$}$$}$0$}$16870$}$PUS064GH-SAVE-BTN-PRE-HOOK (PO MAINTENANCE)$}$4/6/2016 4:12:34 PM$}$(Program: PUR064GH ; Screen: PUS064GH)
+
+Program.Sub.Comments.End
+
